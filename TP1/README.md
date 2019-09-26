@@ -3,8 +3,8 @@
 * La première carte est la carte NAT qu'on l'on met sur notre VM.
 * On joint localement la carte réseau `192.168.56.1` dans un réseau hôte privé. C'est grâce à celle-là que je me connecte en SSH.
 * On se connecte à la machine `$ ssh admin@192.168.56.101`, on a accès à notre machine depuis notre local
-`[admin@localhost ~]$ cat /etc/centos-release
-CentOS Linux release 8.0.1905 (Core)`
+```[admin@localhost ~]$ cat /etc/centos-release
+CentOS Linux release 8.0.1905 (Core)```
 
 ### 1. Gather informations
 
@@ -40,4 +40,59 @@ tcp                   LISTEN                  0                       128       
 tcp                   LISTEN                  0                       128                                                         [::]:22                                               [::]:*  
 ```
 On peut voir le ssh qui écoute sur le `port 22` et nos réseaux sont sur le `port 68`.
-* 
+* Tout d'abord, pour afficher la liste des DNS, on exécute : `cat /etc/resolv.conf`. Après avoir installer le paquet `bind-utils`, nous pouvons récupérer la l'ip associé au domaine de `www.reddit.com` :
+
+```
+[admin@localhost ~]$ dig www.reddit.com
+
+; <<>> DiG 9.11.4-P2-RedHat-9.11.4-17.P2.el8_0.1 <<>> www.reddit.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 48329
+;; flags: qr rd ra; QUERY: 1, ANSWER: 5, AUTHORITY: 13, ADDITIONAL: 27
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;www.reddit.com.			IN	A
+
+;; ANSWER SECTION:
+www.reddit.com.		79	IN	CNAME	reddit.map.fastly.net.
+reddit.map.fastly.net.	29	IN	A	151.101.65.140
+reddit.map.fastly.net.	29	IN	A	151.101.129.140
+reddit.map.fastly.net.	29	IN	A	151.101.1.140
+reddit.map.fastly.net.	29	IN	A	151.101.193.140
+
+;; AUTHORITY SECTION:
+net.			153441	IN	NS	l.gtld-servers.net.
+net.			153441	IN	NS	f.gtld-servers.net.
+net.			153441	IN	NS	g.gtld-servers.net.
+[...]
+;; ADDITIONAL SECTION:
+a.gtld-servers.net.	153429	IN	A	192.5.6.30
+a.gtld-servers.net.	153429	IN	AAAA	2001:503:a83e::2:30
+m.gtld-servers.net.	153429	IN	A	192.55.83.30
+m.gtld-servers.net.	153429	IN	AAAA	2001:501:b1f9::30
+j.gtld-servers.net.	153429	IN	A	192.48.79.30
+j.gtld-servers.net.	153429	IN	AAAA	2001:502:7094::30
+k.gtld-servers.net.	153429	IN	A	192.52.178.30
+k.gtld-servers.net.	153429	IN	AAAA	2001:503:d2d::30
+f.gtld-servers.net.	153429	IN	A	192.35.51.30
+[...]
+;; Query time: 175 msec
+;; SERVER: 10.33.10.20#53(10.33.10.20)
+;; WHEN: Thu Sep 26 09:48:43 EDT 2019
+;; MSG SIZE  rcvd: 935
+```
+On sait maintenant que l'adresse ip voulue est : `10.33.10.20`
+
+* L'état actuel du firewall se récupère avec : 
+```[admin@localhost ~]$ systemctl status firewalld
+● firewalld.service - firewalld - dynamic firewall daemon
+   Loaded: loaded (/usr/lib/systemd/system/firewalld.service; enabled; vendor preset>
+   Active: active (running) since Thu 2019-09-26 08:58:19 EDT; 56min ago
+     Docs: man:firewalld(1)
+ Main PID: 758 (firewalld)
+    Tasks: 3 (limit: 5060)
+   Memory: 32.4M
+```
