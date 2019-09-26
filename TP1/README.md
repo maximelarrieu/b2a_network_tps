@@ -14,7 +14,7 @@ CentOS Linux release 8.0.1905 (Core)
 * Pour récupérer la liste des cartes réseau, j'utilise la commande `ip a`. 
 J'obtiens alors une liste de trois résultats, avec la carte réseau et l'ip grâce à laquelle je me suis connecté en SSH : `enp0s3`, la carte `enp0s8` et la carte Ethernet `lo`.
 
-* En se rendant dans le dossier des baux DHCP stockés `$ cd /var/lib/NetworkManager`, on peut afficher le dernier baux crée avec `[admin@localhost lib]$ cat internal-1de272d3-1d0c-422d-b60d-c017de41c887-enp0s3.lease` on obtient alors: 
+* En se rendant dans le dossier des baux DHCP stockés `$ cd /var/lib/NetworkManager`, on peut afficher le dernier bail crée avec `[admin@localhost lib]$ cat internal-1de272d3-1d0c-422d-b60d-c017de41c887-enp0s3.lease` on obtient alors: 
 
 ```
 This is private data. Do not parse.
@@ -55,8 +55,8 @@ tcp                   LISTEN                  0                       128       
 On peut voir le ssh qui écoute sur le `port 22` et nos réseaux sont sur le `port 68`.
 * Tout d'abord, pour afficher la liste des DNS, on exécute : `cat /etc/resolv.conf`. Après avoir installer le paquet `bind-utils`, nous pouvons récupérer la l'ip associé au domaine de `www.reddit.com` :
 
-<details open>
-<summary>`dig www.reddit.com`</summary>
+<details>
+<summary>dig www.reddit.com</summary>
 
 ```
 [admin@localhost ~]$ dig www.reddit.com
@@ -195,7 +195,14 @@ NETMASK=255.255.255.0
 Où on a passer l'adresse ip en statique.
 (certaines lignes qui ne sont pas indispensables ont été retirées par nos soins)
 
-* On créer une nouvelle carte réseau dans VirtualBox (sans cocher la case DHCP) avec pour IP `192.168.57.1` et de la même manière que précédemment, on rédige le fichier correspondant :
+Pour finaliser l'étape, on exécute la commande : 
+- `nmcli c reload`
+
+et
+
+- `nmcli con up enp0s8`
+
+On créer une nouvelle carte réseau dans VirtualBox (sans cocher la case DHCP) avec pour IP `192.168.57.1` et de la même manière que précédemment, on rédige le fichier correspondant :
 
 ```
 [admin@localhost ~]$ cat /etc/sysconfig/network-scripts/ifcfg-enp0s9
@@ -208,8 +215,124 @@ IPADDR=192.168.57.103
 NETMASK=255.255.255.0
 ```
 
+##### Résultat :
+
+```
+root@localhost ~]# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:1b:fe:ac brd ff:ff:ff:ff:ff:ff
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic noprefixroute enp0s3
+       valid_lft 86379sec preferred_lft 86379sec
+    inet6 fe80::2bc9:839c:4f72:e37e/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+3: enp0s8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:09:8a:91 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.56.103/24 brd 192.168.56.255 scope global noprefixroute enp0s8
+       valid_lft forever preferred_lft forever
+    inet6 fe80::79c6:3352:379a:644b/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+4: enp0s9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:6e:60:42 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.57.103/24 brd 192.168.57.255 scope global noprefixroute enp0s9
+       valid_lft forever preferred_lft forever
+    inet6 fe80::5695:bbe:3536:bc4/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+```
+
 #### 2. Serveur SSH
 
-* Pour modifier configuration on édite le fichier : `sudo vim /etc/ssh/sshd_config` dans lequel on décommente et modifie la ligne `#Port 22` en `Port 2222` 
-Pour activer le port on utilise `sudo firewall-cmd --zone=public --add-port=2222/tcp --permanent` et on ferme le précédent : `firewall-cmd --zone=public --remove-port=22/tcp`
+Pour modifier configuration on édite le fichier : 
+- `sudo vim /etc/ssh/sshd_config` dans lequel on décommente et modifie la ligne `#Port 22` en `Port 2222` 
 
+- Pour activer le nouveau port on utilise `sudo firewall-cmd --zone=public --add-port=2222/tcp --permanent` 
+
+- On ferme le port précédent : `firewall-cmd --zone=public --remove-port=22/tcp`
+
+- On reload le firewall et le tour est joué : `firewall-cmd --reload`
+
+- On installe semanage avec la commande : `yum install policycoreutils-python-utils-2.8-16.1.el8.noarch`
+
+- On execute `semanage port -a -t ssh_port_t -p tcp 2222` 
+
+##### Résultat :
+
+```
+➜  b2a_network_tps git:(master) ✗ ssh root@192.168.56.103 -p 2222
+root@192.168.56.103's password: 
+Last login: Thu Sep 26 16:02:02 2019
+[root@localhost ~]# 
+```
+
+### III. Routage simple
+
+### IV. Autres applications et métrologie
+
+#### 1. Commandes
+
+`iftop` n'étant pas présent sur la machine virtuelle, nous l'installons avec la commande `yum install iftop`
+
+Après quelques recherches sur internet, `iftop` est un outil de monitoring qui liste les connexions internet.
+
+```
+└─bbbbbbbbbbbbbb┴─bbbbbbbbbbbbbb┴─bbbbbbbbbbbbbb┴─bbbbbbbbbbbbbb┴─bbbbbbbbbbbbb─
+localhost.localdomain	   => par10s27-in-f206.1e100.ne     0b    267b     67b
+                           <=                               0b    602b    150b
+localhost.localdomain	   => 192.168.0.254                 0b    206b     51b
+                           <=                               0b    330b     82b
+localhost.localdomain	   => ip139.ip-5-196-160.eu	    0b     61b     15b
+                           <=                               0b     61b     15b
+localhost.localdomain	   => server.gigelf.fr              0b     61b     15b
+                           <=                               0b     61b     15b
+```
+(après avoir fait un `curl` vers google.com)
+
+`iftop` peut être utile si l'on veut surveiller ce que se passe sur sa machine afin de monitorer le flux entrant et sortant.
+
+#### 2. Cockpit
+
+On installe cockpit avec la commande donnée : `sudo dnf install -y cockpit`
+
+On démarre cockpit : `sudo systemctl start cockpit`
+
+Pour savoir sur quel port écoute cockpit : 
+
+```
+[root@localhost ~]# ss -tupln
+Netid State   Recv-Q   Send-Q         Local Address:Port     Peer Address:Port                                                                                  
+udp   UNCONN  0        0                  127.0.0.1:323           0.0.0.0:*      users:(("chronyd",pid=757,fd=6))                                               
+udp   UNCONN  0        0           10.0.2.15%enp0s3:68            0.0.0.0:*      users:(("NetworkManager",pid=826,fd=18))                                       
+udp   UNCONN  0        0                      [::1]:323              [::]:*      users:(("chronyd",pid=757,fd=7))                                               
+tcp   LISTEN  0        128                  0.0.0.0:2222          0.0.0.0:*      users:(("sshd",pid=2102,fd=6))                                                 
+tcp   LISTEN  0        128                        *:9090                *:*      users:(("cockpit-ws",pid=3028,fd=3),("systemd",pid=1,fd=24))                   
+tcp   LISTEN  0        128                     [::]:2222             [::]:*      users:(("sshd",pid=2102,fd=8)) 
+```
+
+On remarque qu'il écoute sur le port 9090.
+
+Le port ne semble pas être ouvert dans le firewall :
+
+```
+[root@localhost ~]# firewall-cmd --list-ports
+2222/tcp
+```
+
+On l'ajoute donc : `firewall-cmd --list-ports 9090/tcp`
+
+C'est bien mieux comme ça !
+
+`[root@localhost ~]# firewall-cmd --list-ports 2222/tcp 9090/tcp`
+
+Je me connecte à l'adresse : https://192.168.56.103:9090 avec les identifiants root et root (du premier coup et à l'instinct).
+
+Nous sommes redirigé sur https://192.168.56.103:9090/system
+
+Nous avons exploré un peu tous les onglets et Cockpit semble être un outil pour garder un oeil et la gérer (on peut reboot la machine par exemple) sur sa machine.
+
+La partie réseau affiche les interfaces. On a un résumé des ports du parefeu.
+Nous pouvons voir l'envoi et la réception internet et nous avons accès au journal du réseau.
