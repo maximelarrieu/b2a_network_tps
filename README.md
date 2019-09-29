@@ -2,6 +2,10 @@
 *TP cours réseau B2A*
 
 ### [TP1 : Back to basics](/TP1)
+<details>
+<summary>Détails du TP</summary>
+
+```
 First TP smooth, remise dans le bain tranquillement (pour ceux qui l'ont quitté). Pour ce premier TP, on va rester du côté du réseau client et de l'administration simplifiée de services utilisant le réseau.
 
 Au menu :
@@ -22,3 +26,5 @@ Notions abordés :
 * DHCP
 * SSH
 * Service réseau
+```
+</details>
