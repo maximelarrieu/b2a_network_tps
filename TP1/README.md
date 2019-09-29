@@ -314,6 +314,7 @@ R1(config-if)# no shut
 R1(config-if)# exit
 R1(config)# exit
 ```
+Ici, les cartes `FastEthernet0/0` et `0/1` correspondent aux ports par lesquels passent les VMs et la dernière donne accès au NAS.
 
 ### IV. Autres applications et métrologie
 
