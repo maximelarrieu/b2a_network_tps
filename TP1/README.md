@@ -270,6 +270,50 @@ Last login: Thu Sep 26 16:02:02 2019
 ```
 
 ### III. Routage simple
+###### Tableau récapitulatif des IPs
+|VM1         |VM2|
+|:-----------|:-:|
+|192.168.57.2|192.168.58.2|
+
+###### Configuration des VMs
+Pour configurer nos VMs, nous devons définir leurs IPs statiques. Nous modifions alors le fichier d'interface :
+
+```
+$ sudo nano /etc/sysconfig/network-scripts/ifcfg-enp0s3
+
+BOOTPROTO="static"
+NAME="enp0s3"
+DEVICE="enp0s3"
+ONBOOT="yes"
+IPADDR=192.168.57.2
+NETMASK=255.255.255.252
+```
+Nous procédons de la même façon pour la deuxième VM à laquelle nous avons assigné l'ip `192.168.58.2`. Une fois le fichier modifié, on relance l'interface :
+
+```
+$ sudo ifdown enp0s3
+$ sudo ifup enp0s3
+```
+
+###### Configuration du routeur
+Une fois le routeur intégré dans notre topologie dans GNS3, nous ouvrons le terminal du routeur afin d'y accèder et de le configurer :
+
+```
+R1# conf t
+R1(config)# interface FastEthernet0/0
+R1(config-if)# ip address 192.168.58.3 255.255.255.252
+R1(config-if)# no shut
+R1(config-if)# exit
+R1(config)# interface FastEthernet0/1
+R1(config-if)# ip address 192.168.58.2 255.255.255.252
+R1(config-if)# no shut
+R1(config-if)# exit
+R1(config)# interface FastEthernet1/0
+R1(config-if)# ip address 192.168.56.254 255.255.255.0
+R1(config-if)# no shut
+R1(config-if)# exit
+R1(config)# exit
+```
 
 ### IV. Autres applications et métrologie
 
