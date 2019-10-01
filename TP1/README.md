@@ -37,6 +37,12 @@ default via 10.0.3.2 dev enp0s8 proto dhcp metric 101
 ```
 
 
+La première ligne indique la mise en place de la route par défaut grâce au DHCP.
+
+La deuxième ligne concerne la carte enp0s8 qui est une route vers le réseau Ynov.
+
+La troisième ligne concerne la carte enp0s3 qui est une route vers le réseau privé de notre machine (pour se connecter en SSH par exemple).
+
 * On peut récupérer la liste des ports en écoute sur la machine en éxecutant :
 
 
