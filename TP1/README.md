@@ -43,6 +43,16 @@ La deuxième ligne concerne la carte enp0s8 qui est une route vers le réseau Yn
 
 La troisième ligne concerne la carte enp0s3 qui est une route vers le réseau privé de notre machine (pour se connecter en SSH par exemple).
 
+
+```
+[root@localhost ~]# ip neigh show
+10.0.3.2 dev enp0s8 lladdr 52:54:00:12:35:02 STALE
+10.0.3.3 dev enp0s8 lladdr 52:54:00:12:35:03 STALE
+192.168.56.1 dev enp0s3 lladdr 0a:00:27:00:00:00 REACHABLE
+```
+
+Nous pouvons voir que les différentes adresses sont reliées à leurs adresses mac ainsi que leur état respectif.
+
 * On peut récupérer la liste des ports en écoute sur la machine en éxecutant :
 
 
