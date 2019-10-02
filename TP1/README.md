@@ -349,6 +349,13 @@ r1.tp1.b2(config)# exit
 ```
 
 On a ajouté au routeur les routes vers les VMs et vers le NAT.
+Le router peut dès lors ping vers internet :
+```
+r1.tp1.b2# ping 8.8.8.8
+Sending 5, 100-byte ICMP Echos to 8.8.8.8, timeout is 2 seconds:
+!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 20/31/64 ms
+```
 
 Désormais, les VMs peuvent se ping :
 
