@@ -287,9 +287,13 @@ Last login: Thu Sep 26 16:02:02 2019
 
 ### III. Routage simple
 ###### Tableau récapitulatif des IPs
-|VM1         |VM2|
-|:-----------|:-:|
-|192.168.57.2|192.168.58.2|
+|           |10.1.0.0|10.2.0.0|192.168.56.1|
+|:---------:|:------:|:------:|:----------:|
+|10.1.0.10  |    x   |        |            |
+|10.2.0.10  |        |    x   |            |
+|10.1.0.254 |    x   |        |            |
+|10.2.0.254 |        |    x   |            |
+|192.168.122.176  |        |       |     x      |
 
 ###### Configuration des VMs
 Pour configurer nos VMs, nous devons définir leurs IPs statiques. Nous modifions alors le fichier d'interface :
@@ -301,10 +305,11 @@ BOOTPROTO="static"
 NAME="enp0s3"
 DEVICE="enp0s3"
 ONBOOT="yes"
-IPADDR=192.168.57.2
-NETMASK=255.255.255.252
+IPADDR=10.1.0.10
+NETMASK=255.255.255.0
+GATEWAY=10.1.0.254
 ```
-Nous procédons de la même façon pour la deuxième VM à laquelle nous avons assigné l'ip `192.168.58.2`. Une fois le fichier modifié, on relance l'interface :
+Nous procédons de la même façon pour la deuxième VM à laquelle nous avons assigné l'ip `10.2.0.10` et pour gateway `10.2.0.154`. Une fois le fichier modifié, on relance l'interface :
 
 ```
 $ sudo ifdown enp0s3
@@ -315,22 +320,58 @@ $ sudo ifup enp0s3
 Une fois le routeur intégré dans notre topologie dans GNS3, nous ouvrons le terminal du routeur afin d'y accèder et de le configurer :
 
 ```
-R1# conf t
-R1(config)# interface FastEthernet0/0
-R1(config-if)# ip address 192.168.58.3 255.255.255.252
-R1(config-if)# no shut
-R1(config-if)# exit
-R1(config)# interface FastEthernet0/1
-R1(config-if)# ip address 192.168.58.2 255.255.255.252
-R1(config-if)# no shut
-R1(config-if)# exit
-R1(config)# interface FastEthernet1/0
-R1(config-if)# ip address 192.168.56.254 255.255.255.0
-R1(config-if)# no shut
-R1(config-if)# exit
-R1(config)# exit
+r1.tp1.b2# conf t
+r1.tp1.b2(config)# interface FastEthernet0/0
+r1.tp1.b2(config-if)# ip address dhcp
+r1.tp1.b2(config-if)# no shut
+... Interface FastEthernet0/0 assigned DHCP address 192.168.122.15, mask 255.555.555.0, hostname r1.tp1.b2
+r1.tp1.b2(config-if)# exit
+r1.tp1.b2(config)# interface FastEthernet0/1
+r1.tp1.b2(config-if)# ip address 10.1.0.254 255.255.255.0
+r1.tp1.b2(config-if)# no shut
+r1.tp1.b2(config-if)# exit
+r1.tp1.b2(config)# interface FastEthernet1/0
+r1.tp1.b2(config-if)# ip address 10.2.0.254 255.255.255.0
+r1.tp1.b2(config-if)# no shut
+r1.tp1.b2(config-if)# exit
+r1.tp1.b2(config)# exit
 ```
-Ici, les cartes `FastEthernet0/0` et `0/1` correspondent aux ports par lesquels passent les VMs et la dernière donne accès au NAS.
+Ici, les cartes `FastEthernet0/1` et `1/0` correspondent aux ports par lesquels passent les VMs et la première donne accès au NAT.
+
+```
+r1.tp1.b2# conf t
+r1.tp1.b2(config)# ip route 10.1.0.0 255.255.255.0 10.1.0.10
+r1.tp1.b2(config)# exit
+r1.tp1.b2(config)# ip route 10.2.0.0 255.255.255.0 10.2.0.10
+r1.tp1.b2(config)# exit
+r1.tp1.b2(config)# ip route 192.168.122.176 255.255.255.0 192.168.56.1
+r1.tp1.b2(config)# exit
+```
+
+On a ajouté au routeur les routes vers les VMs et vers le NAT.
+
+Désormais, les VMs peuvent se ping :
+
+```
+$ ping 10.2.0.10
+PING 10.2.0.10 (10.2.0.10) 56(84) bytes of data.
+64 bytes from 10.2.0.10: icmp_seq=1 ttl=64 time=0.046 ms
+64 bytes from 10.2.0.10: icmp_seq=1 ttl=64 time=0.045 ms
+64 bytes from 10.2.0.10: icmp_seq=1 ttl=64 time=0.089 ms
+^C
+--- 10.2.0.10 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 72ms
+rtt min/avg/mdev = 0.045/0.60/0.089/0.020 ms
+```
+Notre première VM ping en effet la deuxième.
+
+Sans aucune carte NAT configuré, on peut curl google depuis une VM :
+
+```
+$ curl www.google.com
+<!doctype html><html itemscope="" itemtype="http://schema.org/WebPage" lang="fr"><head><meta content="text/html; charset=UTF-8" http-equiv="Content-Type"><meta content="/images/branding/googleg/1x/googleg_standard_color_128dp.png" itemprop="image"><title>Google</title><script nonce="zVZPWa2dIY6KUvY69MUm0A==">(function(){window.google={kEI:'PreUXe6_KuKAjLsPl46eyAk',kEXPI:'0,1353747,5103,559,730,224,510,1065,1217,864,1071,377,207,905,112,53,1336,672,2,124,10,713,319,19,49,490,278,392,126,1131274,189,1197557,329521,1294,12383,4855,32692,15247,867,12163,16521,364,8824,2436,3929,2019,1119,2,579,727,2431,1362,4323,3694,1274,773,2255,2815,3773,4,1047,218,6196,1719,1808,1960,16,2044,8910,5296,2016,38,920,873,1hp\x22,\x22dh\x22:true,\x22dhqt\x22:true,\x22ds\x22:\x22\x22,\x22ffql\x22:\x22fr\x22,\x22fl\x22:true,\x22host\x22:\x22google.
+....com\x22,\x22isbh\x22:28,\x22jsonp\x22:true,\x22lm\x22:true,\x22msgs\x22:{\x22cibl\x22:\x22Effacer la recherche\x22,\x22dym\x22:\x22Essayez avec cette orthographe :\x22,\x22lcky\x22:\x22J\\u0026#39;ai de la chance\x22,\x22lml\x22:\x22En savoir plus\x22,\x22oskt\x22:\x22Outils de saisie\x22,\x22psrc\x22:\x22Cette suggestion a bien �t� supprim�e de votre \\u003Ca href\x3d\\\x22/history\\\x22\\u003Ehistorique Web\\u003C/a\\u003E.\x22,\x22psrl\x22:\x22Supprimer\x22,\x22sbit\x22:\x22Recherche par image\x22,\x22srch\x22:\x22Recherche Google\x22},\x22ovr\x22:{},\x22pq\x22:\x22\x22,\x22refpd\x22:true,\x22rfs\x22:[],\x22sbpl\x22:24,\x22sbpr\x22:24,\x22scd\x22:10,\x22sce\x22:5,\x22stok\x22:\x22VIdvhrKJtOQ310enOrxqknIWWZQ\x22,\x22uhde\x22:false}}';google.pmc=JSON.parse(pmc);})();</script>        </body></html>
+```
 
 ### IV. Autres applications et métrologie
 
