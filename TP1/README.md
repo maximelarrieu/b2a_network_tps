@@ -438,3 +438,40 @@ Nous avons exploré un peu tous les onglets et Cockpit semble être un outil pou
 
 La partie réseau affiche les interfaces. On a un résumé des ports du parefeu.
 Nous pouvons voir l'envoi et la réception internet et nous avons accès au journal du réseau.
+
+#### 3. Netdata
+
+Tout d'abord nous installons Netdata et ses prérequis avec la commande :
+
+```sudo yum install zlib-devel libuuid-devel gcc make git autoconf automake pkgconfig```
+
+```sudo yum install curl jq nodejs```
+
+Téléchargement de Netdata :
+
+```
+git clone https://github.com/firehol/netdata.git --depth=1
+cd netdata
+sudo ./netdata-installer.sh
+```
+
+Le port utilisé pour accéder à l'outil Netdata est 19999, il faut donc l'ajouter à la liste des ports autorisés dans le firewall.
+
+```
+sudo firewall-cmd --permanent --zone=public --add-port=19999/tcp
+sudo firewall-cmd --reload
+```
+
+Ca marche est c'est trop beauuuuuuuuu !
+
+Dans le System Overview nous avons :
+
+- Used Swap (en %)
+- Disk Read (en KiB/s)
+- Disk Write (en KiB/s)
+- CPU (en %)
+- Net Inbound (en megabits/s) 
+- Net Outbound (en megabits/s)
+- Used ram (en %)
+
+Il y a pleins d'autres petit tools sympa comme la mise en place d'alarme ou encore le téléchargement des données récoltées. 
