@@ -456,7 +456,7 @@ Tout d'abord nous installons Netdata et ses prérequis avec la commande :
 
 Téléchargement de Netdata :
 
-```
+```php
 git clone https://github.com/firehol/netdata.git --depth=1
 cd netdata
 sudo ./netdata-installer.sh
