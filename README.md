@@ -28,3 +28,27 @@ Notions abordés :
 * Service réseau
 ```
 </details>
+
+### [TP2 : Network low-level, Switching](/TP2)
+<details>
+<summary>Détails du TP</summary>
+
+```
+Dans ce TP on va se pencher un peu plus sur les échanges réseau en eux-mêmes, en analysant les trames réseau avec Wireshark.
+On va aussi jouer de façon un peu plus avancée avec des switches.
+On va commencer à rentrer plus dans le détails des différents éléments.
+Allez à votre rythme, prenez le temps de comprendre.
+Posez des questions.
+Prenez des notes au fur et à mesure.
+Lisez les parties en entier avant de commencer à travailler dessus.
+Pour ce qui est de la mise en place, on va manipuler des switches (IOS Cisco) et aborder les notions/protocoles suivants :
+
++ ARP
++ ping
++ Spanning-Tree : STP
++ Utilisation de VLAN : Trunking
++ Agrégation de ports : LACP
+
+
+> Référez-vous au README des TPs pour des infos sur le déroulement et le rendu des TPs.
+```
