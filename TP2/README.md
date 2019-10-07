@@ -82,25 +82,70 @@ rtt min/avg/max/dev = 3.281/3.353/3.434/0.091 ms
 Ping de PC1 vers PC3 :
 
 ```
+$ ping 10.2.1.3
+PING 10.2.1.3 (10.2.1.3) 56(84) bytes of data.
+64 bytes from 10.2.1.3: icmp_seq=1 ttl=64 time=2.18 ms
+64 bytes from 10.2.1.3: icmp_seq=2 ttl=64 time=3.75 ms
+64 bytes from 10.2.1.3: icmp_seq=3 ttl=64 time=3.49 ms
+^C
+--- 10.2.1.3 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 6ms
+rtt min/avg/max/dev = 2.214/3.390/1.894/0.022 ms
 ```
 
 Ping de PC2 vers PC1 :
 
 ```
+$ ping 10.2.1.1
+PING 10.2.1.1 (10.2.1.1) 56(84) bytes of data.
+64 bytes from 10.2.1.1: icmp_seq=1 ttl=64 time=1.94 ms
+64 bytes from 10.2.1.1: icmp_seq=2 ttl=64 time=3.56 ms
+64 bytes from 10.2.1.1: icmp_seq=3 ttl=64 time=2.19 ms
+^C
+--- 10.2.1.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 6ms
+rtt min/avg/max/dev = 3.529/2.221/1.916/0.017 ms
 ```
 Ping de PC2 vers PC3 :
 
 ```
+$ ping 10.2.1.3
+PING 10.2.1.3 (10.2.1.3) 56(84) bytes of data.
+64 bytes from 10.2.1.3: icmp_seq=1 ttl=64 time=3.18 ms
+64 bytes from 10.2.1.3: icmp_seq=2 ttl=64 time=2.59 ms
+64 bytes from 10.2.1.3: icmp_seq=3 ttl=64 time=2.41 ms
+^C
+--- 10.2.1.3 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 6ms
+rtt min/avg/max/dev = 3.621/3.753/2.846/0.071 ms
 ```
 
 Ping de PC3 vers PC1 :
 
 ```
+$ ping 10.2.1.1
+PING 10.2.1.1 (10.2.1.1) 56(84) bytes of data.
+64 bytes from 10.2.1.1: icmp_seq=1 ttl=64 time=2.68 ms
+64 bytes from 10.2.1.1: icmp_seq=2 ttl=64 time=3.15 ms
+64 bytes from 10.2.1.1: icmp_seq=3 ttl=64 time=3.11 ms
+^C
+--- 10.2.1.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 6ms
+rtt min/avg/max/dev = 2.411/3.366/2.734/0.054 ms
 ```
 
 Ping de PC3 vers PC2 :
 
 ```
+$ ping 10.2.1.2
+PING 10.2.1.2 (10.2.1.2) 56(84) bytes of data.
+64 bytes from 10.2.1.2: icmp_seq=1 ttl=64 time=1.76 ms
+64 bytes from 10.2.1.2: icmp_seq=2 ttl=64 time=2.29 ms
+64 bytes from 10.2.1.2: icmp_seq=3 ttl=64 time=3.13 ms
+^C
+--- 10.2.1.2 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 6ms
+rtt min/avg/max/dev = 2.818/3.123/3.498/0.176 ms
 ```
 
 Analyser la table MAC d'un switch :
