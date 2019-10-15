@@ -2,7 +2,7 @@
 
 ## I. Simplest setup
 
-### Topologie mise en place
+##### Topologie mise en place
 
 ```
 +-----+        +-------+        +-----+
@@ -371,6 +371,27 @@ Il faut maintenant configurer les switches, notamment les VLANs :
 (config-if)# no shut
 ```
 
+Une fois les 
+
+Une fois les VLANs configurés, nous pouvons les visualiser grâce à la commande `show vlan br` :
+
+```
+IOU1#show vlan br
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Et0/3, Et1/0, Et1/1, Et1/2,
+                                                Et1/3, Et2/0, Et2/1, Et2/2,
+                                                Et2/3, Et3/0, Et3/1, Et3/2,
+                                                Et3/3
+10   vm1-network                      active    Et0/0
+20   vm2-network                      active    Et0/1, Et0/2
+1002 fddi-default                     act/unsup 
+1003 token-ring-default               act/unsup 
+1004 fddinet-default                  act/unsup 
+1005 trnet-default                    act/unsup 
+```
+
 ### Faire communiquer les PCs deux à deux
 
 #### Vérifier que PC2 ne peut joindre que PC3
@@ -411,6 +432,7 @@ PING 10.2.3.3 (10.2.3.3) 56(84) bytes of data.
 
 ### 2. Avec trunk
 ##### Topologie
+
 ```
 +-----+        +-------+        +-------+        +-----+
 | PC1 +--------+  SW1  +--------+  SW2  +--------+ PC4 |
@@ -464,6 +486,39 @@ Pour configurer les vlans, voici la procédure : (ici la configuration pour le p
 (config-if)# switchport mode access
 (config-if)# switchport access vlan 10
 (config-if)# no shut
+```
+Une fois les VLANs configurés, nous pouvons les visualiser grâce à la commande `show vlan br` :
+
+```
+IOU1#show vlan br
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Et0/2, Et0/3, Et1/0, Et1/1
+                                                Et1/2, Et1/3, Et2/0, Et2/1
+                                                Et2/2, Et2/3, Et3/0, Et3/1
+                                                Et3/2, Et3/3
+10   vm1-network                      active    Et0/0
+20   vm2-network                      active    Et0/1
+1002 fddi-default                     act/unsup 
+1003 token-ring-default               act/unsup 
+1004 fddinet-default                  act/unsup 
+1005 trnet-default                    act/unsup 
+
+IOU2#show vlan br
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Et0/3, Et1/0, Et1/1, Et1/2
+                                                Et1/3, Et2/0, Et2/1, Et2/2
+                                                Et2/3, Et3/0, Et3/1, Et3/2
+                                                Et3/3
+10   vm3-network                      active    Et0/1
+20   vm4-network                      active    Et0/2
+1002 fddi-default                     act/unsup 
+1003 token-ring-default               act/unsup 
+1004 fddinet-default                  act/unsup 
+1005 trnet-default                    act/unsup 
 ```
 
 Je configure également une interface entre les deux switches : *trunk*
@@ -562,6 +617,7 @@ connect: Network is unreachable
 
 ## IV. Need perfs
 ##### Topologie
+
 ```
 +-----+        +-------+--------+-------+        +-----+
 | PC1 +--------+  SW1  +		   +  SW2  +--------+ PC4 |
@@ -576,21 +632,43 @@ connect: Network is unreachable
 Pour cette topologie nous pouvons garder les IPs déjà configurées précédemment. On suit la même configuration et topologie mais il faut maintenant configurer LACP entra `SWITCH1` et `SWITCH2`. En faisant des recherches sur internet, on peut trouver une façon de faire en quelques lignes :
 
 ```
+// Switch 1
 IOU1#conf t
 Enter configuration commands, one per line.  End with CNTL/Z.
 IOU1(config)#interface range eth0/2
-IOU1(config-if-range)#channel-group 1 mode active
+IOU1(config-if-range)#shutdown
+IOU1(config-if-range)#switchport trunk encapsulation dot1q
+IOU1(config-if-range)#switchport mode trunk                
+IOU1(config-if-range)#channel-group 2 mode active   
 Creating a port-channel interface Port-channel 1
+IOU1(config-if-range)#no shutdown 
 IOU1(config-if-range)#exit
-IOU1(config)#exit
+IOU1(config-if)#exit
 
-IOU2#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-IOU1(config)#interface range eth0/0
-IOU1(config-if-range)#channel-group 1 mode active
+IOU1(config)#interface Po1
+IOU1(config-if)#switchport trunk encapsulation dot1q
+IOU1(config-if)#switchport mode trunk
+IOU1(config-if)#exit
+IOU1(config)#no shut
+
+
+// Switch 2
+IOU2(config)#interface range eth0/0 
+IOU2(config-if-range)#shutdown
+IOU2(config-if-range)#switchport trunk encapsulation dot1q
+IOU2(config-if-range)#switchport mode trunk
+IOU2(config-if-range)#channel-group 2 mode active
 Creating a port-channel interface Port-channel 1
-IOU1(config-if-range)#exit
-IOU1(config)#exit
+IOU2(config-if-range)#no shutdown
+IOU2(config-if-range)#exit
+IOU2(config-if)#exit
+
+IOU2(config)#interface Po1
+IOU2(config-if)#switchport trunk encapsulation dot1q
+IOU2(config-if)#switchport mode trunk
+IOU2(config-if)#exit
+IOU2(config)#no shut
+
 ```
 
 Sur Wireshark on peut trouver des marques de l'utilisation de trames LACP comme :
@@ -613,4 +691,32 @@ Port-channel1 is up, line protocol is up
   Inbound  access list is not set
   Outgoing access list is not set
 
+```
+
+On peut également obtenir un diagnostic etherchannel de notre double connexion entre nos switches avec une autre commande :
+
+```
+IOU1#sh etherchannel summary
+Flags:  D - down        P - bundled in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      N - not in use, no aggregation
+        f - failed to allocate aggregator
+
+        M - not in use, minimum links not met
+        m - not in use, port not aggregated due to minimum links not met
+        u - unsuitable for bundling
+        w - waiting to be aggregated
+        d - default port
+
+        A - formed by Auto LAG
+
+
+Number of channel-groups in use: 1
+Number of aggregators:           1
+
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+-----------------------------------------------
+2      Po1(SU)         LACP      Et0/2(P)    
 ```
