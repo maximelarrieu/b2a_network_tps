@@ -51,7 +51,7 @@ Analyse Wireshark du ping de PC2 vers PC1
 
 #### Pourquoi le switch n'a pas besoin d'IP
 
-Ce switch ne possède pas d'IP car sa mission est de faire le pont entre le PC1 et le PC2, il n'est qu'un intermédiaire.
+Ce switch ne possède pas d'IP il ne comprend pas le protocole IP et ne sais pas l'utiliser non plus. Il utilise le protocole Ethernet.
 
 #### Pourquoi les machines ont besoin d'une IP pour pouvoir se ping
 
@@ -282,4 +282,61 @@ VLAN0001                     1         0        0         15         16
 Le root bridge est `VLAN0001` avec l'adresse MAC `aabb.cc00.0300`.
 
 ##### Quels sont les ports désactivés
+
+### Faire un schéma représentant les informations STP
+
+#### Rôle des switchs
+
+#### Rôle de chacun des ports
+
+### Confirmer les informations STP
+
+#### Effectuer un ping d'une machine à une autre
+
+#### Vérifier que les trames passent bien par le chemin attendu
+
+### Déterminer quel lien a été désactivé par STP
+
+### Faire un schéma qui explique le trajet d'une requête ARP lorsque PC1 ping PC3, et de sa réponse
+
+#### Représenter TOUTES les trames ARP (n'oubliez pas les broadcasts)
+
+### Changer la priorité d'un switch qui n'est pas le root bridge
+
+Pour changer la priorité d'un switch qui n'est pas le root bridge, on utilise la commande `conf t`
+
+```shell script
+IOU3#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+IOU3(config)#spanning-tree vlan 1 priority 4096
+```
+
+### Vérifier les changements
+
+#### Avec des commandes sur les switchs
+
+#### Capturer les échanges qui suivent une reconfiguration STP avec Wireshark
+
+## III. Isolation
+
+### Topologie mise en place
+
+```
++-----+        +-------+        +-----+
+| PC1 +--------+  SW1  +--------+ PC3 |
++-----+      10+-------+20      +-----+
+                 20|
+                   |
+                +--+--+
+                | PC2 |
+                +-----+
+```
+
+#### Voir les commandes dédiées à la manipulation de VLANs
+
+### Faire communiquer les PCs deux à deux
+
+#### Vérifier que PC2 ne peut joindre que PC3
+
+#### Vérifier que PC1 ne peut joindre personne alors qu'il est dans le même réseau (sad)
 
