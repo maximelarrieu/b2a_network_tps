@@ -60,7 +60,7 @@ discuter à travers le réseau qui est "portée" par une carte réseau. (cf mém
 
 ## II. More Switches
 
-### Topologie mise en place
+##### Topologie
 
 ```
                         +-----+
@@ -205,7 +205,7 @@ C'est un protocole propriétaire de Cisco qui a pour but de fournir des informat
 
 ##### Commande `show spanning-tree`
 
-```shell script
+```shell
 IOU3#show spanning-tree
 
 VLAN0001
@@ -243,7 +243,7 @@ Et3/3               Desg FWD 100       128.16   Shr
 
 ##### Commande `show spanning-tree bridge`
 
-```shell script
+```shell
 IOU3#show spanning-tree bridge
 
                                                    Hello  Max  Fwd
@@ -254,7 +254,7 @@ VLAN0001         32769 (32768,   1) aabb.cc00.0300    2    20   15  rstp
 
 ##### Commande `show spanning-tree summary`
 
-```shell script
+```shell
 IOU3#show spanning-tree summary
 Switch is in rapid-pvst mode
 Root bridge for: none
@@ -305,7 +305,7 @@ Le root bridge est `VLAN0001` avec l'adresse MAC `aabb.cc00.0300`.
 
 Pour changer la priorité d'un switch qui n'est pas le root bridge, on utilise la commande `conf t`
 
-```shell script
+```shell
 IOU3#conf t
 Enter configuration commands, one per line.  End with CNTL/Z.
 IOU3(config)#spanning-tree vlan 1 priority 4096
@@ -318,8 +318,8 @@ IOU3(config)#spanning-tree vlan 1 priority 4096
 #### Capturer les échanges qui suivent une reconfiguration STP avec Wireshark
 
 ## III. Isolation
-
-### Topologie mise en place
+### 1. Simple
+##### Topologie
 
 ```
 +-----+        +-------+        +-----+
@@ -333,10 +333,284 @@ IOU3(config)#spanning-tree vlan 1 priority 4096
 ```
 
 #### Voir les commandes dédiées à la manipulation de VLANs
+Nous donnons tout d'abord les bonnes adresses IP aux PC pour la topologie en modifiant le fichier `/etc/sysconfig/network-scripts/ifcfg-enp0s3`. Sans oublier un petit :
+
+```
+$ sudo ifdown enp0s3
+$ sudo ifup enp0s3
+```
+
+Il faut maintenant configurer les switches, notamment les VLANs :
+
+```
+# conf t
+(config)# vlan 10
+(config-vlan)# name vm1-network
+(config-vlan)# exit
+(config)# interface eth0/0
+(config-if)# switchport mode access
+(config-if)# switchport access vlan 10
+(config-if)# no shut
+
+# conf t
+(config)# vlan 20
+(config-vlan)# name vm2-network
+(config-vlan)# exit
+(config)# interface eth0/1
+(config-if)# switchport mode access
+(config-if)# switchport access vlan 20
+(config-if)# no shut
+
+# conf t
+(config)# vlan 20
+(config-vlan)# name vm3-network
+(config-vlan)# exit
+(config)# interface eth0/2
+(config-if)# switchport mode access
+(config-if)# switchport access vlan 20
+(config-if)# no shut
+```
 
 ### Faire communiquer les PCs deux à deux
 
 #### Vérifier que PC2 ne peut joindre que PC3
+On peut voir que le ping vers le `PC1` ne fonctionne pas mais que vers le `PC3` on envoie et reçoit des paquets :
+
+```
+$ ping 10.2.3.1
+PING 10.2.3.1 (10.2.3.1) 56(84) bytes of data.
+^C
+--- 10.2.3.1 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 76ms
+
+$ ping 10.2.3.3
+PING 10.2.3.3 (10.2.3.3) 56(84) bytes of data.
+64 bytes from 10.2.3.3: icmp_seq=1 ttl=64 time=3.034 ms
+64 bytes from 10.2.3.3: icmp_seq=2 ttl=64 time=1.879 ms
+64 bytes from 10.2.3.3: icmp_seq=3 ttl=64 time=0.111 ms
+--- 10.2.3.3 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 5ms
+```
 
 #### Vérifier que PC1 ne peut joindre personne alors qu'il est dans le même réseau (sad)
+J'effectue un ping depuis `PC1` vers `PC2` et `PC3` :
 
+```
+$ ping 10.2.3.2
+PING 10.2.3.2 (10.2.3.2) 56(84) bytes of data.
+^C
+--- 10.2.3.2 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 52ms
+
+$ ping 10.2.3.3
+PING 10.2.3.3 (10.2.3.3) 56(84) bytes of data.
+^C
+--- 10.2.3.3 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 66ms
+```
+
+### 2. Avec trunk
+##### Topologie
+```
++-----+        +-------+        +-------+        +-----+
+| PC1 +--------+  SW1  +--------+  SW2  +--------+ PC4 |
++-----+      10+-------+        +-------+20      +-----+
+                 20|              10|
+                   |                |
+                +--+--+          +--+--+
+                | PC2 |          | PC3 |
+                +-----+          +-----+
+```
+
+Comme pour toutes les topologies, je viens éditer le fichier `/etc/sysconfig/network-scripts/ifcfg-enp0s3` afin de donner la bonne IP à toutes les machines virtuelles.
+
+Pour configurer les vlans, voici la procédure : (ici la configuration pour le port vers VM1 avec un VLAN 10)
+
+```
+// Switch 1
+# conf t
+(config)# vlan 10
+(config-vlan)# name vm1-network
+(config-vlan)# exit
+(config)# interface eth0/0
+(config-if)# switchport mode access
+(config-if)# switchport access vlan 10
+(config-if)# no shut
+
+# conf t
+(config)# vlan 20
+(config-vlan)# name vm2-network
+(config-vlan)# exit
+(config)# interface eth0/1
+(config-if)# switchport mode access
+(config-if)# switchport access vlan 20
+(config-if)# no shut
+
+// Switch 2
+# conf t
+(config)# vlan 20
+(config-vlan)# name vm3-network
+(config-vlan)# exit
+(config)# interface eth0/1
+(config-if)# switchport mode access
+(config-if)# switchport access vlan 20
+(config-if)# no shut
+
+# conf t
+(config)# vlan 10
+(config-vlan)# name vm4-network
+(config-vlan)# exit
+(config)# interface eth0/2
+(config-if)# switchport mode access
+(config-if)# switchport access vlan 10
+(config-if)# no shut
+```
+
+Je configure également une interface entre les deux switches : *trunk*
+
+```
+// Configuration sur le premier switch
+IOU1#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+IOU1(config)#interface eth0/2
+IOU1(config-if)#switchport trunk encapsulation dot1q 
+IOU1(config-if)#switchport mode trunk               
+IOU1(config-if)#no shut
+IOU1(config-if)#exit
+IOU1(config)#exit
+
+// Configuration sur le deuxième switch
+IOU2#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+IOU2(config)#interface eth0/0
+IOU2(config-if)#switchport trunk encapsulation dot1q 
+IOU2(config-if)#switchport mode trunk
+IOU2(config-if)#no shut
+IOU2(config-if)#exit
+IOU2(config)#exit
+
+```
+
+On peut maintenant vérifier que `PC1` ne peut joindre que `PC3` et inversement :
+
+```
+PC1$ ping 10.2.10.2
+PING 10.2.10.2 (10.2.10.2) 56(84) bytes of data.
+64 bytes from 10.2.10.2: icmp_seq=1 ttl=64 time=2.731 ms
+64 bytes from 10.2.10.2: icmp_seq=2 ttl=64 time=0.018 ms
+64 bytes from 10.2.10.2: icmp_seq=3 ttl=64 time=1.131 ms
+--- 10.2.10.2 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 12ms
+
+PC3$ ping 10.2.10.1
+PING 10.2.10.1 (10.2.10.21 56(84) bytes of data.
+64 bytes from 10.2.10.1: icmp_seq=1 ttl=64 time=3.774 ms
+64 bytes from 10.2.10.1: icmp_seq=2 ttl=64 time=2.547 ms
+64 bytes from 10.2.10.1: icmp_seq=3 ttl=64 time=1.259 ms
+--- 10.2.10.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 11ms
+
+PC1$ ping 10.2.20.1
+connect: Network is unreachable
+
+PC3$ ping 10.2.20.2
+connect: Network is unreachable
+```
+
+Par conséquent, le même fonctionnement est en place pour `PC2` et `PC4` :
+
+```
+PC2$ ping 10.2.20.2
+PING 10.2.20.2 (10.2.20.2) 56(84) bytes of data.
+64 bytes from 10.2.20.2: icmp_seq=1 ttl=64 time=2.286 ms
+64 bytes from 10.2.20.2: icmp_seq=2 ttl=64 time=1.117 ms
+64 bytes from 10.2.20.2: icmp_seq=3 ttl=64 time=0.982 ms
+--- 10.2.20.2 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 7ms
+
+PC4$ ping 10.2.20.1
+PING 10.2.20.1 (10.2.20.1 56(84) bytes of data.
+64 bytes from 10.2.20.1: icmp_seq=1 ttl=64 time=0.619 ms
+64 bytes from 10.2.20.1: icmp_seq=2 ttl=64 time=1.326 ms
+64 bytes from 10.2.20.1: icmp_seq=3 ttl=64 time=1.447 ms
+--- 10.2.20.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 18ms
+
+PC2$ ping 10.2.10.1
+connect: Network is unreachable
+
+PC4$ ping 10.2.10.2
+connect: Network is unreachable
+```
+
+#### Mise en évidence de l'utilisation des VLANs avec Wireshark
+
+> A vérifier de plus près
+
+```
+25	25.125322	10.2.10.2	10.2.10.1	ICMP	98	Echo (ping) request  id=0x07c6, seq=6/1536, ttl=64 (reply in 26)
+26	25.127007	10.2.10.1	10.2.10.2	ICMP	98	Echo (ping) reply    id=0x07c6, seq=6/1536, ttl=64 (request in 25)
+27	25.222053	PcsCompu_db:c6:90	PcsCompu_d8:2d:52	ARP	60	Who has 10.2.10.2? Tell 10.2.10.1
+28	25.233880	PcsCompu_d8:2d:52	PcsCompu_db:c6:90	ARP	60	10.2.10.2 is at 08:00:27:d8:2d:52
+28	25.233880	PcsCompu_d8:2d:52	PcsCompu_db:c6:90	ARP	60	10.2.10.2 is at 08:00:27:d8:2d:52
+30	25.377309	PcsCompu_db:c6:90	PcsCompu_d8:2d:52	ARP	60	10.2.10.1 is at 08:00:27:db:c6:90
+31	25.457643	aa:bb:cc:00:01:20	CDP/VTP/DTP/PAgP/UDLD	DTP	60	Dynamic Trunk Protocol
+31	25.457643	aa:bb:cc:00:01:20	CDP/VTP/DTP/PAgP/UDLD	DTP	60	Dynamic Trunk Protocol
+31	25.457643	aa:bb:cc:00:01:20	CDP/VTP/DTP/PAgP/UDLD	DTP	60	Dynamic Trunk Protocol
+
+```
+
+## IV. Need perfs
+##### Topologie
+```
++-----+        +-------+--------+-------+        +-----+
+| PC1 +--------+  SW1  +		   +  SW2  +--------+ PC4 |
++-----+      10+-------+--------+-------+20      +-----+
+                 20|              10|
+                   |                |
+                +--+--+          +--+--+
+                | PC2 |          | PC3 |
+                +-----+          +-----+
+```
+
+Pour cette topologie nous pouvons garder les IPs déjà configurées précédemment. On suit la même configuration et topologie mais il faut maintenant configurer LACP entra `SWITCH1` et `SWITCH2`. En faisant des recherches sur internet, on peut trouver une façon de faire en quelques lignes :
+
+```
+IOU1#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+IOU1(config)#interface range eth0/2
+IOU1(config-if-range)#channel-group 1 mode active
+Creating a port-channel interface Port-channel 1
+IOU1(config-if-range)#exit
+IOU1(config)#exit
+
+IOU2#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+IOU1(config)#interface range eth0/0
+IOU1(config-if-range)#channel-group 1 mode active
+Creating a port-channel interface Port-channel 1
+IOU1(config-if-range)#exit
+IOU1(config)#exit
+```
+
+Sur Wireshark on peut trouver des marques de l'utilisation de trames LACP comme :
+
+```
+2	1.971125	aa:bb:cc:00:02:00	Slow-Protocols	LACP	124	v1 ACTOR aa:bb:cc:80:02:00 P: 1 K: 1 **DCSG*A PARTNER aa:bb:cc:80:01:00 P: 3 K: 1 **DCSG*A
+68	30.195557	aa:bb:cc:00:02:00	Slow-Protocols	LACP	124	v1 ACTOR aa:bb:cc:80:02:00 P: 1 K: 1 **DCSG*A PARTNER aa:bb:cc:80:01:00 P: 3 K: 1 **DCSG*A
+```
+
+Enfin, en utilisant la commande `show ip int po1` sur nos switches maintenant configurés, nous pouvons constater que la bande passante a bien été doublée :
+
+```
+IOU1#show ip int po1
+Port-channel1 is up, line protocol is up
+  Inbound  access list is not set
+  Outgoing access list is not set
+  
+IOU2#show ip int po1
+Port-channel1 is up, line protocol is up
+  Inbound  access list is not set
+  Outgoing access list is not set
+
+```
