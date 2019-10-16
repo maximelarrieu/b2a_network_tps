@@ -283,23 +283,45 @@ Le root bridge est `VLAN0001` avec l'adresse MAC `aabb.cc00.0300`.
 
 ##### Quels sont les ports désactivés
 
+Nous pouvons voir le port désactivé grâce à la commande `show spanning-tree` avec les trois lettres BLK.
+
+Dans notre cas, nous remarquons que le port bloqué est à cette ligne `Et0/1               Altn BLK 100       128.2    Shr`.
+
+Le port Et0/1 est donc bloqué.
+
 ### Faire un schéma représentant les informations STP
 
 #### Rôle des switchs
 
+Le rôle des switchs sont de relier différents clients entre-eux. Dans notre cas, le root bridge est le switch 1 (`VLAN0001`), cela signifie donc que 
+toutes les communications passent par ce switch.
+
 #### Rôle de chacun des ports
+
+On peut voir qu'il y a différents types de port qui sont soit en statut FWD (forwarded) ou 
+en BLK (bloked) avec pour role Desgn (designated) ou Altn (alternated) ou Root.
 
 ### Confirmer les informations STP
 
 #### Effectuer un ping d'une machine à une autre
 
+Ping de la machine 3 vers la machine 1 qui aboutit au résultat (via analyse de trames avec Wireshark) à des lignes qui ressemblent à :
+
+`shell 12    8.052142    aa:bb:cc:00:01:00    Spanning-tree-(for-bridges)_00    STP    60    RST. Root = 32768/1/aa:bb:cc:00:01:00  Cost = 0  Port = 0x8001 `
+
 #### Vérifier que les trames passent bien par le chemin attendu
 
+en cours...
+
 ### Déterminer quel lien a été désactivé par STP
+
+en cours...
 
 ### Faire un schéma qui explique le trajet d'une requête ARP lorsque PC1 ping PC3, et de sa réponse
 
 #### Représenter TOUTES les trames ARP (n'oubliez pas les broadcasts)
+
+en cours...
 
 ### Changer la priorité d'un switch qui n'est pas le root bridge
 
@@ -308,12 +330,23 @@ Pour changer la priorité d'un switch qui n'est pas le root bridge, on utilise l
 ```shell
 IOU3#conf t
 Enter configuration commands, one per line.  End with CNTL/Z.
-IOU3(config)#spanning-tree vlan 1 priority 4096
+IOU3(config)#spanning-tree vlan 1 priority 0
 ```
+
+En attribuant une priorité de 0, le switch devient root bridge.
 
 ### Vérifier les changements
 
 #### Avec des commandes sur les switchs
+
+```shell script
+IOU3#show spanning-tree summary
+Switch is in rapid-pvst mode
+Root bridge for: VLAN0001
+...
+```
+
+Désormais le switch 3 est root bridge.
 
 #### Capturer les échanges qui suivent une reconfiguration STP avec Wireshark
 
@@ -371,8 +404,6 @@ Il faut maintenant configurer les switches, notamment les VLANs :
 (config-if)# no shut
 ```
 
-Une fois les 
-
 Une fois les VLANs configurés, nous pouvons les visualiser grâce à la commande `show vlan br` :
 
 ```
@@ -395,6 +426,7 @@ VLAN Name                             Status    Ports
 ### Faire communiquer les PCs deux à deux
 
 #### Vérifier que PC2 ne peut joindre que PC3
+
 On peut voir que le ping vers le `PC1` ne fonctionne pas mais que vers le `PC3` on envoie et reçoit des paquets :
 
 ```
@@ -414,6 +446,7 @@ PING 10.2.3.3 (10.2.3.3) 56(84) bytes of data.
 ```
 
 #### Vérifier que PC1 ne peut joindre personne alors qu'il est dans le même réseau (sad)
+
 J'effectue un ping depuis `PC1` vers `PC2` et `PC3` :
 
 ```
@@ -431,6 +464,7 @@ PING 10.2.3.3 (10.2.3.3) 56(84) bytes of data.
 ```
 
 ### 2. Avec trunk
+
 ##### Topologie
 
 ```
@@ -487,6 +521,7 @@ Pour configurer les vlans, voici la procédure : (ici la configuration pour le p
 (config-if)# switchport access vlan 10
 (config-if)# no shut
 ```
+
 Une fois les VLANs configurés, nous pouvons les visualiser grâce à la commande `show vlan br` :
 
 ```
@@ -600,8 +635,6 @@ connect: Network is unreachable
 
 #### Mise en évidence de l'utilisation des VLANs avec Wireshark
 
-> A vérifier de plus près
-
 ```
 25	25.125322	10.2.10.2	10.2.10.1	ICMP	98	Echo (ping) request  id=0x07c6, seq=6/1536, ttl=64 (reply in 26)
 26	25.127007	10.2.10.1	10.2.10.2	ICMP	98	Echo (ping) reply    id=0x07c6, seq=6/1536, ttl=64 (request in 25)
@@ -629,7 +662,8 @@ connect: Network is unreachable
                 +-----+          +-----+
 ```
 
-Pour cette topologie nous pouvons garder les IPs déjà configurées précédemment. On suit la même configuration et topologie mais il faut maintenant configurer LACP entra `SWITCH1` et `SWITCH2`. En faisant des recherches sur internet, on peut trouver une façon de faire en quelques lignes :
+Pour cette topologie nous pouvons garder les IPs déjà configurées précédemment. On suit la même configuration et topologie mais il faut maintenant 
+configurer LACP entra `SWITCH1` et `SWITCH2`. En faisant des recherches sur internet, on peut trouver une façon de faire en quelques lignes :
 
 ```
 // Switch 1
@@ -720,3 +754,5 @@ Group  Port-channel  Protocol    Ports
 ------+-------------+-----------+-----------------------------------------------
 2      Po1(SU)         LACP      Et0/2(P)    
 ```
+
+The end !
