@@ -2,6 +2,26 @@
 
 ## I. Router-on-a-stick
 
+### Topologie mise en place
+
+```
+             +--+
+             |R1|
+             +-++
+               |
+               |                    +---+
+               |          +---------+PC4|
++---+        +-+-+      +---+       +---+
+|PC1+--------+SW1+------+SW2|
++---+        +-+-+      +-+--+
+               |          |  |
+               |          |  +------+--+
+               |          |         |P1|
+             +-+-+      +-+-+       +--+
+             |PC2|      |PC3|
+             +---+      +---+
+```
+
 ### Prove me that your setup is actually working
 
 #### think about VLANs, ping, etc.
