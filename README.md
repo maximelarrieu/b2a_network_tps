@@ -52,3 +52,25 @@ Pour ce qui est de la mise en place, on va manipuler des switches (IOS Cisco) et
 
 > Référez-vous au README des TPs pour des infos sur le déroulement et le rendu des TPs.
 ```
+</details>
+
+### [TP3 : Routage INTER-VLAN + mise en situation](/TP3)
+<details>
+<summary>Détails du TP</summary>
+
+```
+On va aborder un cas un peu plus concret dans ce TP. 
+Vous aurez besoin d'un peu de votre créativité pour arriver jusqu'au bout.
+
+Vous aller avoir besoin d'un routeur dans ce TP et de quelques petits détails de conf qu'on a pas encore vu.
+
+Afin de vous refaire pratiquer un peu, et de vous faire aborder ces quelques nouvelles notions, 
+le TP se découpe en deux temps :
+
+- appréhension d'une topologie classique : Router-on-a-stick
+- - on remet un peu du routeur là dedans, et on aborde le routage inter-VLAN
+partie courte, c'est une intro à la seconde partie
+- cas concret
+-- je vous soumets un problème, vous me répondez avec une infra :
+```
+</details>
