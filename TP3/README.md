@@ -204,17 +204,38 @@ P> ping 10.3.10.1
 
 ###### prévoyez une augmentation légère
 
+Pour ce qui est de prévoir une augmentation légère du nombre d'adresses IPs disponibles, nous allons prévoir une augmentation de 20% dans notre sous-réseau.
+
+Actuellement notre topologie posséde 38 machines, si l'on respecte l'augmentation de 20%, nous devons donner à notre sous réseau la possibilité d'avoir au moins 46 adresses IPs.
+
+Un sous réseau en /26 nous offre 64 adresses dont 62 disponibles.
+
 ##### permettre un accès internet à tout le monde
+
+Sur GNS, nous ajoutons un nuage NAT relié à notre routeur afin de partager internet avec tout le monde.
 
 #### Pour la partie HARD
 
 ##### proposez un nombre de routeur et de switches et précisez à quel endroit physique ils se trouveront
 
+Lors de la mise en place d'une topologie, les frais d'infrastructure doivent êtres pris en compte, ainsi que la sécurité, nous sommes donc parti sur une topologie comportant :
+
+- 1 routeur relié au NAT
+- 2 switchs (dont 1 relié à toutes les machines sauf la salle serveurs)
+
+Le routeur et le switch relié à toutes les machines sauf la salle serveur se trouvent dans le bureau principal, à l'abri des autres utilisateurs du réseau. 
+
+Pour ce qui est du dernier routeur, relié à la salle serveur, il se trouve dans la salle serveur qui est sécurisée et fermée.
+
 ##### précisez le nombre de câbles nécessaires et une longueur (approximative)
+
+Nous avons 38 machines, donc 38 cables, plus 1 cable entre les 2 switchs et 1 cable entre le routeur et le switch et un cable entre le routeur et le NAT donc : 41 cables.
 
 #### livrer, en plus de l'infra, des éléments qui rendent compte de l'infra (de façon simple)
 
 ##### schéma réseau (screen GNS ?)
+
+![Screen gns](/screens/screen-gns.png?raw=true "Screen GNS de la topologie")
 
 ##### référez-vous à la partie I. (tableau des réseaux utilisés, tableau d'adressage)
 
