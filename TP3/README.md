@@ -214,6 +214,8 @@ Un sous réseau en /26 nous offre 64 adresses dont 62 disponibles.
 
 Sur GNS, nous ajoutons un nuage NAT relié à notre routeur afin de partager internet avec tout le monde.
 
+Exemple de preuve d'accès à internet :
+
 #### Pour la partie HARD
 
 ##### proposez un nombre de routeur et de switches et précisez à quel endroit physique ils se trouveront
@@ -231,6 +233,10 @@ Pour ce qui est du dernier routeur, relié à la salle serveur, il se trouve dan
 
 Nous avons 38 machines, donc 38 cables, plus 1 cable entre les 2 switchs et 1 cable entre le routeur et le switch et un cable entre le routeur et le NAT donc : 41 cables.
 
+Si le batiment fait 20 mètres sur 20 mètres :
+
+
+
 #### livrer, en plus de l'infra, des éléments qui rendent compte de l'infra (de façon simple)
 
 ##### schéma réseau (screen GNS ?)
@@ -241,7 +247,7 @@ Nous avons 38 machines, donc 38 cables, plus 1 cable entre les 2 switchs et 1 ca
 
 #### Dans un second temps :
 
-### BONUS
+#### BONUS
 
 #### mettre en place les exceptions
 
