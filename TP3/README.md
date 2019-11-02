@@ -216,6 +216,15 @@ Sur GNS, nous ajoutons un nuage NAT relié à notre routeur afin de partager int
 
 Exemple de preuve d'accès à internet :
 
+```shell
+ADMIN> ping 8.8.8.8
+84 bytes from 8.8.8.8 icmp_seq=1 ttl=61 time=144.425 ms
+84 bytes from 8.8.8.8 icmp_seq=2 ttl=61 time=106.328 ms
+84 bytes from 8.8.8.8 icmp_seq=3 ttl=61 time=73.182 ms
+84 bytes from 8.8.8.8 icmp_seq=4 ttl=61 time=845.391 ms
+84 bytes from 8.8.8.8 icmp_seq=5 ttl=61 time=97.328 ms
+```
+
 #### Pour la partie HARD
 
 ##### proposez un nombre de routeur et de switches et précisez à quel endroit physique ils se trouveront
@@ -234,8 +243,6 @@ Pour ce qui est du dernier routeur, relié à la salle serveur, il se trouve dan
 Nous avons 38 machines, donc 38 cables, plus 1 cable entre les 2 switchs et 1 cable entre le routeur et le switch et un cable entre le routeur et le NAT donc : 41 cables.
 
 Si le batiment fait 20 mètres sur 20 mètres :
-
-
 
 #### livrer, en plus de l'infra, des éléments qui rendent compte de l'infra (de façon simple)
 
