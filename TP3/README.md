@@ -252,7 +252,16 @@ Si le batiment fait 20 mètres sur 20 mètres :
 
 ##### référez-vous à la partie I. (tableau des réseaux utilisés, tableau d'adressage)
 
-Tout d'abord, nous déterminons un plan d'adressage avec toutes les IPs et réseaux qui seront utilisés.
+Machines	| VLAN | net1 		  | net2 | net3 | net4 | net5 | net6 |
+------- | ---- | ------------- | ---- | ---- | ---- | -----|------|
+ADMINS  | 10   | `10.3.10.1-3` |   x  |   x  |   x  |  x   |   x  |
+USERS   | 20   |       x       |   `10.3.20.1-16`  |   x  |   x  |  x   |   x  |
+STAGIAIRES| 30 |       x       |   x  |   `10.3.30.1-8`  |   x  |  x   |   x  |
+SERVEURS| 40   |       x       |   x  |   x  |   `10.3.40.1-4`  |  x   |   x  |
+SS      | 50   |       x       |   x  |   x  |   x  |  `10.3.50.1-2`   |   x  |
+IMPRIMANTES| 60|       x       |   x  |   x  |   x  |  x   |   `10.3.60.1-5`  |
+R1      |   x  |  `10.3.10.254` | `10.3.20.254` | `10.3.30.254` | `10.3.40.254` | `10.3.50.254` | `10.3.60.254` |
+
 
 #### Dans un second temps :
 
@@ -413,6 +422,41 @@ IOU2(config-if)#switchport mode access
 IOU2(config-if)#switchport access vlan 40
 IOU2(config-if)#no shut
 IOU2(config-if)#exit
+```
+
+Il faut maintenant configurer les IPs de nos VPCS :
+
+```shell
+// Les VPCS administrateurs
+ADMIN> ip 10.3.10.1/24 10.3.10.254
+Checking for duplicate address...
+PC1 : 10.3.10.1 255.255.255.0 gateway 10.3.10.254
+
+// Les VPCS users
+U1> ip 10.3.20.1/24 10.3.20.254
+Checking for duplicate address...
+PC1 : 10.3.20.1 255.255.255.0 gateway 10.3.20.254
+
+// Les VPCS stagiaires
+U1> ip 10.3.30.1/24 10.3.30.254
+Checking for duplicate address...
+PC1 : 10.3.30.1 255.255.255.0 gateway 10.3.30.254
+
+// Les VPCS serveurs
+U1> ip 10.3.40.1/24 10.3.40.254
+Checking for duplicate address...
+PC1 : 10.3.40.1 255.255.255.0 gateway 10.3.40.254
+
+// Les VPCS serveurs sensibles
+U1> ip 10.3.50.1/24 10.3.50.254
+Checking for duplicate address...
+PC1 : 10.3.50.1 255.255.255.0 gateway 10.3.50.254
+
+// Les VPCS imprimantes
+U1> ip 10.3.60.1/24 10.3.60.254
+Checking for duplicate address...
+PC1 : 10.3.60.1 255.255.255.0 gateway 10.3.60.254
+
 ```
 
 #### BONUS
