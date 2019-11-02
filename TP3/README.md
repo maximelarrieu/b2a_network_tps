@@ -252,7 +252,168 @@ Si le batiment fait 20 mètres sur 20 mètres :
 
 ##### référez-vous à la partie I. (tableau des réseaux utilisés, tableau d'adressage)
 
+Tout d'abord, nous déterminons un plan d'adressage avec toutes les IPs et réseaux qui seront utilisés.
+
 #### Dans un second temps :
+
+Après avoir déterminer nos VLANS, nous passons à la configuration des sous-interfaces de notre router :
+
+```shell
+R1#conf t
+R1(config)#int eth0/1
+R1(config-if)#no shut
+R1(config-if)#exit
+R1(config)#int eth0/1.10
+R1(config-subif)#encapsulation dot1q 10
+R1(config-subif)#ip address 10.3.10.254 255.255.255.192
+R1(config-subif)#no shut
+R1(config-subif)#exit
+R1(config)#int eth0/1.20
+R1(config-subif)#encapsulation dot1q 20
+R1(config-subif)#ip address 10.3.20.254 255.255.255.192
+R1(config-subif)#no shut
+R1(config-subif)#exit
+R1(config)#int eth0/1.30
+R1(config-subif)#encapsulation dot1q 30
+R1(config-subif)#ip address 10.3.30.254 255.255.255.192
+R1(config-subif)#no shut
+R1(config-subif)#exit
+R1(config)#int eth0/1.40
+R1(config-subif)#encapsulation dot1q 40
+R1(config-subif)#ip address 10.3.40.254 255.255.255.192
+R1(config-subif)#no shut
+R1(config-subif)#exit
+R1(config)#int eth0/1.50                         
+R1(config-subif)#encapsulation dot1q 50                
+R1(config-subif)#ip address 10.3.50.254 255.255.255.192
+R1(config-subif)#no shut
+R1(config-subif)#exit
+R1(config)#int eth0/1.60
+R1(config-subif)#encapsulation dot1q 60                
+R1(config-subif)#ip address 10.3.60.254 255.255.255.192
+R1(config-subif)#no shut
+R1(config-subif)#exit
+```
+
+Nous configurons ensuite les VLANS sur le switch1 :
+
+```shell
+IOU1#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+IOU1(config)#vlan 10
+IOU1(config-vlan)#name administrators
+IOU1(config-vlan)#no shut
+%VLAN 10 is not shutdown.
+IOU1(config-vlan)#exit
+IOU1(config)#vlan 20
+IOU1(config-vlan)#name users
+IOU1(config-vlan)#no shut
+%VLAN 20 is not shutdown.
+IOU1(config-vlan)#exit
+IOU1(config)#vlan 30
+IOU1(config-vlan)#name stagiaires
+IOU1(config-vlan)#no shut
+%VLAN 30 is not shutdown.
+IOU1(config-vlan)#exit
+IOU1(config)#vlan 60
+IOU1(config-vlan)#name printers
+IOU1(config-vlan)#no shut
+%VLAN 60 is not shutdown.
+IOU1(config-vlan)#exit
+```
+
+Il faut maintenant pour chaque interface, donner accès au(x) VLANS auquel elle peut accèder :
+*Nous proposons quelques exemples pour les différentes machines*
+
+```shell
+// Les administrateurs
+IOU1(config)#int eth0/2
+IOU1(config-if)#switchport mode access
+IOU1(config-if)#switchport access vlan 10
+IOU1(config-if)#no shut
+IOU1(config-if)#exit
+
+// Les users
+IOU1(config)#int eth1/0
+IOU1(config-if)#switchport mode access
+IOU1(config-if)#switchport access vlan 20
+IOU1(config-if)#no shut
+IOU1(config-if)#exit
+
+// Les stagiaires
+IOU1(config)#int eth2/1
+IOU1(config-if)#switchport mode access
+IOU1(config-if)#switchport access vlan 30 
+IOU1(config-if)#no shut
+IOU1(config-if)#exit
+
+// Les imprimantes
+IOU1(config)#int eth0/3
+IOU1(config-if)#switchport mode access
+IOU1(config-if)#switchport access vlan 60
+IOU1(config-if)#no shut
+IOU1(config-if)#exit
+```
+
+On *trunk* maintenant notre switch configuré avec celui branché aux serveurs :
+
+```shell
+// Switch1
+IOU1#conf t
+IOU1(config)#int eth0/1 
+IOU1(config-if)#switchport trunk encapsulation dot1q
+IOU1(config-if)#switchport mode trunk
+IOU1(config-if)#switchport trunk allowed vlan 40,50,10,20,60
+IOU1(config-if)#no shut
+IOU1(config-if)#exit
+IOU1(config)#exit
+
+// Switch2
+IOU2#conf t
+IOU2(config)#int eth0/0 
+IOU2(config-if)#switchport trunk encapsulation dot1q
+IOU2(config-if)#switchport mode trunk
+IOU2(config-if)#switchport trunk allowed vlan 40,50,10,20,60
+IOU2(config-if)#no shut
+IOU2(config-if)#exit
+IOU2(config)#exit
+```
+
+On peut remarquer que le VLAN correspondant aux stagiaires n'est pas alloué, car dans tous les cas, ils n'ont accès à aucun des serveurs.
+
+Nous configurons ensuite les VLANS sur le switch2 :
+
+```shell
+IOU2(config)#vlan 40
+IOU2(config-vlan)#name serveurs
+IOU2(config-vlan)#no shut
+%VLAN 40 is not shutdown.
+IOU2(config-vlan)#exit
+IOU2(config)#vlan 50
+IOU2(config-vlan)#name sensible-serveurs
+IOU2(config-vlan)#no shut
+%VLAN 50 is not shutdown.
+IOU2(config-vlan)#exit
+```
+
+Il faut maintenant pour chaque interface, donner accès au(x) VLANS auquel elle peut accèder :
+*Nous proposons quelques exemples pour les différentes machines*
+
+```shell
+// Les serveurs
+IOU2(config)#int eth0/2
+IOU2(config-if)#switchport mode access
+IOU2(config-if)#switchport access vlan 50
+IOU2(config-if)#no shut
+IOU2(config-if)#exit
+
+// Les serveurs sensibles
+IOU2(config)#int eth0/3
+IOU2(config-if)#switchport mode access
+IOU2(config-if)#switchport access vlan 40
+IOU2(config-if)#no shut
+IOU2(config-if)#exit
+```
 
 #### BONUS
 
