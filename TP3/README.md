@@ -235,7 +235,7 @@ Nous avons 38 machines, donc 38 cables, plus 1 cable entre les 2 switchs et 1 ca
 
 ##### schéma réseau (screen GNS ?)
 
-![Screen gns](/screens/screen-gns.png?raw=true "Screen GNS de la topologie")
+![Screen gns](https://raw.githubusercontent.com/maximelarrieu/b2a_network_tps/master/TP3/screens/screen-gns.png "Screen GNS de la topologie")
 
 ##### référez-vous à la partie I. (tableau des réseaux utilisés, tableau d'adressage)
 
