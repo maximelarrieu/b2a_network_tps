@@ -236,13 +236,19 @@ Lors de la mise en place d'une topologie, les frais d'infrastructure doivent êt
 
 Le routeur et le switch relié à toutes les machines sauf la salle serveur se trouvent dans le bureau principal, à l'abri des autres utilisateurs du réseau. 
 
-Pour ce qui est du dernier routeur, relié à la salle serveur, il se trouve dans la salle serveur qui est sécurisée et fermée.
+Pour ce qui est du dernier switch, relié à la salle serveur, il se trouve dans la salle serveur qui est sécurisée et fermée.
 
 ##### précisez le nombre de câbles nécessaires et une longueur (approximative)
 
 Nous avons 38 machines, donc 38 cables, plus 1 cable entre les 2 switchs et 1 cable entre le routeur et le switch et un cable entre le routeur et le NAT donc : 41 cables.
 
 Si le batiment fait 20 mètres sur 20 mètres :
+
+- Dans la salle serveur (6 cables) : 2 cables courts (car proche du switch de la salle), 4 moyens
+- Dans la salle du bureau principal (2 cables) : 2 cables courts (car proche du deuxième switch) 
+- Entre la salle du bureau principal et la salle serveur (1 cable): 1 cable long
+- Entre le switch du bureau principal et le routeur du bureau principal (1 cable) : 1 cable court (car côte à côte)
+- Pour les autres salles (30 cables) : 30 cables longs à relier vers le bureau principal. 
 
 #### livrer, en plus de l'infra, des éléments qui rendent compte de l'infra (de façon simple)
 
