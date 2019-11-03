@@ -225,51 +225,7 @@ ADMIN> ping 8.8.8.8
 84 bytes from 8.8.8.8 icmp_seq=5 ttl=61 time=97.328 ms
 ```
 
-#### Pour la partie HARD
-
-##### proposez un nombre de routeur et de switches et précisez à quel endroit physique ils se trouveront
-
-Lors de la mise en place d'une topologie, les frais d'infrastructure doivent êtres pris en compte, ainsi que la sécurité, nous sommes donc parti sur une topologie comportant :
-
-- 1 routeur relié au NAT
-- 2 switchs (dont 1 relié à toutes les machines sauf la salle serveurs)
-
-Le routeur et le switch relié à toutes les machines sauf la salle serveur se trouvent dans le bureau principal, à l'abri des autres utilisateurs du réseau. 
-
-Pour ce qui est du dernier switch, relié à la salle serveur, il se trouve dans la salle serveur qui est sécurisée et fermée.
-
-##### précisez le nombre de câbles nécessaires et une longueur (approximative)
-
-Nous avons 38 machines, donc 38 cables, plus 1 cable entre les 2 switchs et 1 cable entre le routeur et le switch et un cable entre le routeur et le NAT donc : 41 cables.
-
-Si le batiment fait 20 mètres sur 20 mètres :
-
-- Dans la salle serveur (6 cables) : 2 cables courts (car proche du switch de la salle), 4 moyens
-- Dans la salle du bureau principal (2 cables) : 2 cables courts (car proche du deuxième switch) 
-- Entre la salle du bureau principal et la salle serveur (1 cable): 1 cable long
-- Entre le switch du bureau principal et le routeur du bureau principal (1 cable) : 1 cable court (car côte à côte)
-- Pour les autres salles (30 cables) : 30 cables longs à relier vers le bureau principal. 
-
-#### livrer, en plus de l'infra, des éléments qui rendent compte de l'infra (de façon simple)
-
-##### schéma réseau (screen GNS ?)
-
-![Screen gns](https://raw.githubusercontent.com/maximelarrieu/b2a_network_tps/master/TP3/screens/screen-gns.png "Screen GNS de la topologie")
-
-##### référez-vous à la partie I. (tableau des réseaux utilisés, tableau d'adressage)
-
-Machines	| VLAN | net1 		  | net2 | net3 | net4 | net5 | net6 |
-------- | ---- | ------------- | ---- | ---- | ---- | -----|------|
-ADMINS  | 10   | `10.3.10.1-3` |   x  |   x  |   x  |  x   |   x  |
-USERS   | 20   |       x       |   `10.3.20.1-16`  |   x  |   x  |  x   |   x  |
-STAGIAIRES| 30 |       x       |   x  |   `10.3.30.1-8`  |   x  |  x   |   x  |
-SERVEURS| 40   |       x       |   x  |   x  |   `10.3.40.1-4`  |  x   |   x  |
-SS      | 50   |       x       |   x  |   x  |   x  |  `10.3.50.1-2`   |   x  |
-IMPRIMANTES| 60|       x       |   x  |   x  |   x  |  x   |   `10.3.60.1-5`  |
-R1      |   x  |  `10.3.10.254` | `10.3.20.254` | `10.3.30.254` | `10.3.40.254` | `10.3.50.254` | `10.3.60.254` |
-
-
-#### Dans un second temps :
+#### INFRA
 
 Après avoir déterminer nos VLANS, nous passons à la configuration des sous-interfaces de notre router :
 
@@ -463,6 +419,126 @@ U1> ip 10.3.60.1/24 10.3.60.254
 Checking for duplicate address...
 PC1 : 10.3.60.1 255.255.255.0 gateway 10.3.60.254
 
+```
+
+#### Pour la partie HARD
+
+##### proposez un nombre de routeur et de switches et précisez à quel endroit physique ils se trouveront
+
+Lors de la mise en place d'une topologie, les frais d'infrastructure doivent êtres pris en compte, ainsi que la sécurité, nous sommes donc parti sur une topologie comportant :
+
+- 1 routeur relié au NAT
+- 2 switchs (dont 1 relié à toutes les machines sauf la salle serveurs)
+
+Le routeur et le switch relié à toutes les machines sauf la salle serveur se trouvent dans le bureau principal, à l'abri des autres utilisateurs du réseau. 
+
+Pour ce qui est du dernier switch, relié à la salle serveur, il se trouve dans la salle serveur qui est sécurisée et fermée.
+
+##### précisez le nombre de câbles nécessaires et une longueur (approximative)
+
+Nous avons 38 machines, donc 38 cables, plus 1 cable entre les 2 switchs et 1 cable entre le routeur et le switch et un cable entre le routeur et le NAT donc : 41 cables.
+
+Si le batiment fait 20 mètres sur 20 mètres :
+
+- Dans la salle serveur (6 cables) : 2 cables courts (car proche du switch de la salle), 4 moyens
+- Dans la salle du bureau principal (2 cables) : 2 cables courts (car proche du deuxième switch) 
+- Entre la salle du bureau principal et la salle serveur (1 cable): 1 cable long
+- Entre le switch du bureau principal et le routeur du bureau principal (1 cable) : 1 cable court (car côte à côte)
+- Pour les autres salles (30 cables) : 30 cables longs à relier vers le bureau principal. 
+
+#### livrer, en plus de l'infra, des éléments qui rendent compte de l'infra (de façon simple)
+
+##### schéma réseau (screen GNS ?)
+
+![Screen gns](https://raw.githubusercontent.com/maximelarrieu/b2a_network_tps/master/TP3/screens/screen-gns.png "Screen GNS de la topologie")
+
+##### référez-vous à la partie I. (tableau des réseaux utilisés, tableau d'adressage)
+
+Machines	| VLAN | net1 		  | net2 | net3 | net4 | net5 | net6 |
+------- | ---- | ------------- | ---- | ---- | ---- | -----|------|
+ADMINS  | 10   | `10.3.10.1-3` |   x  |   x  |   x  |  x   |   x  |
+USERS   | 20   |       x       |   `10.3.20.1-16`  |   x  |   x  |  x   |   x  |
+STAGIAIRES| 30 |       x       |   x  |   `10.3.30.1-8`  |   x  |  x   |   x  |
+SERVEURS| 40   |       x       |   x  |   x  |   `10.3.40.1-4`  |  x   |   x  |
+SS      | 50   |       x       |   x  |   x  |   x  |  `10.3.50.1-2`   |   x  |
+IMPRIMANTES| 60|       x       |   x  |   x  |   x  |  x   |   `10.3.60.1-5`  |
+R1      |   x  |  `10.3.10.254` | `10.3.20.254` | `10.3.30.254` | `10.3.40.254` | `10.3.50.254` | `10.3.60.254` |
+
+
+#### Dans un second temps :
+
+Désormais, on va mettre en place les machines afin qu'elles puissent où non se joindre :
+Tous les ports de nos switchs devront être configurés en mode trunk afin de leurs donner accès aux VLANs auxquels ils sont autorisés.
+
+*SWITCH 1*
+
+```
+// Les administrateurs peuvent joindre - Admins, Serveurs, SS, Imprimantes
+// Tous les ports connectés à un administrateur seront configurés de la même façon
+IOU1#conf t
+IOU1(config)#int eth0/2
+IOU1(config-if)#switchport trunk encapsulation dot1q
+IOU1(config-if)#switchport mode trunk
+IOU1(config-if)#switchport trunk allowed vlan 10,40,50,60
+IOU1(config-if)#no shut  
+IOU1(config-if)#exit
+IOU1(config)#exit
+
+// Les users peuvent joindre - Users, Serveurs, Imprimantes
+// Tous les ports connectés à un user seront configurés de la même façon
+IOU1(config)#int eth1/0
+IOU1(config-if)#switchport trunk encapsulation dot1q
+IOU1(config-if)#switchport mode trunk
+IOU1(config-if)#switchport trunk allowed vlan 20,40,60
+IOU1(config-if)#no shut  
+IOU1(config-if)#exit
+IOU1(config)#exit
+
+// Les stagiaires peuvent joindre - Stagiaires, Imprimantes
+// Tous les ports connectés à un stagiaire seront configurés de la même façon
+IOU1(config)#int eth2/1
+IOU1(config-if)#switchport trunk encapsulation dot1q
+IOU1(config-if)#switchport mode trunk
+IOU1(config-if)#switchport trunk allowed vlan 30,60
+IOU1(config-if)#no shut  
+IOU1(config-if)#exit
+IOU1(config)#exit
+
+// // Les imprimantes peuvent joindre - Imprimantes, Admins, Users, Stagiaires, Serveurs
+// Tous les ports connectés à une imprimante seront configurés de la même façon
+IOU1(config)#int eth2/0
+IOU1(config-if)#switchport trunk encapsulation dot1q
+IOU1(config-if)#switchport mode trunk
+IOU1(config-if)#switchport trunk allowed vlan 10,20,30,40,60
+IOU1(config-if)#no shut  
+IOU1(config-if)#exit
+IOU1(config)#exit
+```
+
+*SWITCH 2*
+
+```
+// Les serveurs peuvent joindre - Serveurs, Admins, Users, Imprimantes
+// Tous les ports connectés à un serveur seront configurés de la même façon
+IOU2#conf t
+IOU2(config)#int eth0/3
+IOU2(config-if)#switchport trunk encapsulation dot1q
+IOU2(config-if)#switchport mode trunk
+IOU2(config-if)#switchport trunk allowed vlan 10,20,40,60
+IOU2(config-if)#no shut  
+IOU2(config-if)#exit
+IOU2(config)#exit
+
+// Les SS peuvent joindre - SS, Admins
+// Tous les ports connectés à un SS seront configurés de la même façon
+IOU2#conf t
+IOU2(config)#int eth0/1
+IOU2(config-if)#switchport trunk encapsulation dot1q
+IOU2(config-if)#switchport mode trunk
+IOU2(config-if)#switchport trunk allowed vlan 10,50
+IOU2(config-if)#no shut  
+IOU2(config-if)#exit
+IOU2(config)#exit
 ```
 
 #### BONUS
