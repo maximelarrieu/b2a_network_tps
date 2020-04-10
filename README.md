@@ -74,3 +74,5 @@ partie courte, c'est une intro à la seconde partie
 -- je vous soumets un problème, vous me répondez avec une infra :
 ```
 </details>
+
+### [TP4 : Buffet à volonté](/TP4)
