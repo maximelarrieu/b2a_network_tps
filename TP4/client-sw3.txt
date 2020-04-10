@@ -1,0 +1,81 @@
+client-sw3#show run
+Building configuration...
+
+Current configuration : 1730 bytes
+!
+! Last configuration change at 16:52:45 UTC Fri Apr 10 2020
+!
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname client-sw3
+!
+
+...
+
+interface Ethernet0/0
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 10,20
+ switchport mode trunk
+ duplex auto
+!         
+interface Ethernet0/1
+ switchport access vlan 10
+ switchport mode access
+ duplex auto
+!         
+interface Ethernet0/2
+ switchport access vlan 20
+ switchport mode access
+ duplex auto
+!         
+interface Ethernet0/3
+ duplex auto
+!         
+interface Ethernet1/0
+ duplex auto
+!         
+interface Ethernet1/1
+ duplex auto
+!         
+interface Ethernet1/2
+ duplex auto
+!         
+interface Ethernet1/3
+ duplex auto
+!         
+interface Ethernet2/0
+ duplex auto
+!         
+interface Ethernet2/1
+ duplex auto
+!         
+interface Ethernet2/2
+ duplex auto
+!         
+interface Ethernet2/3
+ duplex auto
+!         
+interface Ethernet3/0
+ duplex auto
+!         
+interface Ethernet3/1
+ duplex auto
+!         
+interface Ethernet3/2
+ duplex auto
+!         
+interface Ethernet3/3
+ duplex auto
+!         
+interface Vlan1
+ no ip address
+ shutdown 
+!         
+
+...
+
+end       
