@@ -12,3 +12,5 @@
 [Configuration client-sw-3](client-sw3.txt)
 
 Voilà à quoi ressemble notre topologie :
+
+<div align="center"><img src="./screens/topo.png" /></div>
