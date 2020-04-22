@@ -90,6 +90,6 @@ mysql> CREATE DATABASE observium DEFAULT CHARACTER SET utf8 COLLATE utf8_general
 #### Création de l'utilisateur observium
 
 ```
-mysql> GRANT ALL PRIVILEGES ON observium.* TO 'observium'@'localhost' IDENTIFIED BY '<observium db password>';
+mysql> GRANT ALL PRIVILEGES ON observium.* TO 'observium'@'localhost' IDENTIFIED BY 'observium';
 mysql> exit;
 ```
