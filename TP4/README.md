@@ -10,3 +10,5 @@
 [Configuration client-sw-2](/client-sw2.txt)
 
 [Configuration client-sw-3](/client-sw3.txt)
+
+Voilà à quoi ressemble notre topologie :
