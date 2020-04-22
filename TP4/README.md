@@ -1,7 +1,7 @@
 # TP4 : Buffet à volonté
 
 ## La topo de base
-#### Configuration actuelle (10/04/2020)
+#### Configuration actuelle (21/04/2020)
 
 [Configuration R1](router.txt)
 
