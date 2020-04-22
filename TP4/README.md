@@ -123,4 +123,100 @@ $config['db_host']      = 'localhost';
 $config['db_user']      = 'observium';
 $config['db_pass']      = 'observium';
 $config['db_name']      = 'observium';
+
+$config['fping'] = "/usr/sbin/fping";
 ```
+
+#### Insertion du schéma SQL
+
+`./discovery.php -u`
+
+#### Désactiver SE Linux
+
+##### Temporairement
+
+`setenforce 0`
+
+##### Permanent
+
+`SELINUX=permissive`
+
+#### Création de /etc/httpd/conf.d/observium.conf
+
+```
+<VirtualHost *>
+   DocumentRoot /opt/observium/html/
+   ServerName  observium.domain.com
+   CustomLog /opt/observium/logs/access_log combined
+   ErrorLog /opt/observium/logs/error_log
+   <Directory "/opt/observium/html/">
+     AllowOverride All
+     Options FollowSymLinks MultiViews
+     Require all granted
+   </Directory>
+</VirtualHost>
+```
+
+#### Création du dossier de logs
+
+```
+mkdir /opt/observium/logs
+chown apache:apache /opt/observium/logs
+```
+
+#### On ajoute un utilisateur
+
+```
+cd /opt/observium
+./adduser.php thibault thibault 10
+```
+
+#### Commandes initiales
+
+```
+./discovery.php -h all
+./poller.php -h all
+```
+
+#### Cron jobs
+
+```
+sudo vim /etc/cron.d/observium
+
+# Run a complete discovery of all devices once every 6 hours
+33  */6   * * *   root    /opt/observium/discovery.php -h all >> /dev/null 2>&1
+
+# Run automated discovery of newly added devices every 5 minutes
+*/5 *     * * *   root    /opt/observium/discovery.php -h new >> /dev/null 2>&1
+
+# Run multithreaded poller wrapper every 5 minutes
+*/5 *     * * *   root    /opt/observium/poller-wrapper.py >> /dev/null 2>&1
+
+# Run housekeeping script daily for syslog, eventlog and alert log
+13 5 * * * root /opt/observium/housekeeping.php -ysel
+
+# Run housekeeping script daily for rrds, ports, orphaned entries in the database and performance data
+47 4 * * * root /opt/observium/housekeeping.php -yrptb
+```
+
+On redemarre le processus Cron
+
+`systemctl reload crond`
+
+#### On active Apache (HTTPD) au démarrage et on le démarre
+
+```
+systemctl enable httpd
+systemctl start httpd
+```
+
+#### On autorise le protocole HTTP par le Firewall
+
+```
+firewall-cmd --permanent --zone=public --add-service=http
+firewall-cmd --reload
+```
+
+### Yeah !
+
+<div align="center"><img src="./screens/observium_login.png" /></div>
