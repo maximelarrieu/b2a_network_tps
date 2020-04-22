@@ -29,3 +29,67 @@ SMNP est un protocole qui permet de superviser, gérer et contrôler les équipe
 
 ### Installer Observium sur Centos 7
 
+#### On ajoute les repos : REMI, OpenNMS et EPEL
+
+```
+yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install http://yum.opennms.org/repofiles/opennms-repo-stable-rhel7.noarch.rpm
+yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+```
+
+#### Installation de yum-utils
+
+`yum install yum-utils`
+
+#### Activer PHP 7.2
+
+`yum-config-manager --enable remi-php72`
+
+#### On met à jour les packages
+
+`yum update`
+
+#### Packages nécessaires pour Observium
+
+```
+yum install wget.x86_64 httpd.x86_64 php.x86_64 php-opcache.x86_64 php-mysql.x86_64 php-gd.x86_64 \
+            php-posix php-pear.noarch cronie.x86_64 net-snmp.x86_64 net-snmp-utils.x86_64 \
+            fping.x86_64 mariadb-server.x86_64 mariadb.x86_64 MySQL-python.x86_64 rrdtool.x86_64 \
+            subversion.x86_64  jwhois.x86_64 ipmitool.x86_64 graphviz.x86_64 ImageMagick.x86_64 \
+            php-sodium.x86_64
+```
+
+#### Création du dossier Observium
+
+`mkdir -p /opt/observium && cd /opt`
+
+#### Téléchargement et extraction de Observium Community Edition
+
+`wget http://www.observium.org/observium-community-latest.tar.gz`
+
+puis
+
+`tar zxvf observium-community-latest.tar.gz`
+
+#### Mariadb (car c'est Open Source)
+
+On active mariadb au démarrage, et on le démarre.
+
+```
+systemctl enable mariadb
+systemctl start mariadb
+```
+
+#### Création de la base de donnée
+
+```
+sudo mysql
+mysql> CREATE DATABASE observium DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+```
+
+#### Création de l'utilisateur observium
+
+```
+mysql> GRANT ALL PRIVILEGES ON observium.* TO 'observium'@'localhost' IDENTIFIED BY '<observium db password>';
+mysql> exit;
+```
