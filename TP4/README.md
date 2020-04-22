@@ -93,3 +93,34 @@ mysql> CREATE DATABASE observium DEFAULT CHARACTER SET utf8 COLLATE utf8_general
 mysql> GRANT ALL PRIVILEGES ON observium.* TO 'observium'@'localhost' IDENTIFIED BY 'observium';
 mysql> exit;
 ```
+
+#### Copie du fichier de configuration
+
+```
+cd observium
+cp config.php.default config.php
+```
+
+#### Configuration du fichier de configuration (c'est bizarre dit comme ça)
+
+##### Avant
+
+```
+// Database config ---  This MUST be configured
+$config['db_extension'] = 'mysqli';
+$config['db_host']      = 'localhost';
+$config['db_user']      = 'USERNAME';
+$config['db_pass']      = 'PASSWORD';
+$config['db_name']      = 'observium';
+```
+
+##### Après
+
+```
+// Database config ---  This MUST be configured
+$config['db_extension'] = 'mysqli';
+$config['db_host']      = 'localhost';
+$config['db_user']      = 'observium';
+$config['db_pass']      = 'observium';
+$config['db_name']      = 'observium';
+```
