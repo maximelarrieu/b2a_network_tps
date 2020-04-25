@@ -1,5 +1,10 @@
 # TP4 : Buffet à volonté
 
+## Membres du projet
+
+- FEUGERE Thibault
+- LARRIEU Maxime
+
 ## La topo de base
 #### Configuration actuelle (21/04/2020)
 
