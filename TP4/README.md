@@ -6,7 +6,7 @@
 - LARRIEU Maxime
 
 ## La topo de base
-#### Configuration actuelle (21/04/2020)
+### Configuration actuelle (21/04/2020)
 
 [Configuration R1](router.txt)
 
@@ -19,6 +19,14 @@
 Voilà à quoi ressemble notre topologie :
 
 <div align="center"><img src="./screens/topo.png" /></div>
+
+## Installation de HTTPD sur Centos 7
+
+`sudo yum install httpd`
+
+Ensuite, on démarre le serveur avec la commande : `sudo systemctl start httpd`.
+
+Pour finir, on fait en sorte qu'à chaque reboot de la machine, le serveur démarre aussi avec la commande : `sudo systemctl enable httpd`.
 
 ## Observium
 
