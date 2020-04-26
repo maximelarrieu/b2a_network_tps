@@ -28,6 +28,16 @@ Ensuite, on démarre le serveur avec la commande : `sudo systemctl start httpd`.
 
 Pour finir, on fait en sorte qu'à chaque reboot de la machine, le serveur démarre aussi avec la commande : `sudo systemctl enable httpd`.
 
+On démarre le serveur DHCP avec la commande : `sudo systemctl start dhcpd`.
+
+On ajoute le service au démarrage avec la commande : `sudo systemctl enable dhcpd`.
+
+## Installation d'un serveur DHCP sur Centos 7
+
+Pour installer un serveur DHCP on utilise la commande : `sudo yum install dhcp`.
+
+La configuration du serveur DHCP se passe dans : `/etc/dhcp/dhcpd.conf`
+
 ## Observium
 
 On a choisit de découvrir Observium car ca a l'air stylé et nous avons un peu travaillé sur Grafana ces derniers temps car la data viz nous intéresse.
